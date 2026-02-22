@@ -2,7 +2,7 @@ local Rayfield = loadstring(game:HttpGet('https://sirius.menu/rayfield'))()
 
 local Window = Rayfield:CreateWindow({
    Name = "Aqua Hub | Blade Ball Oficial",
-   LoadingTitle = "Lógica Bruta Restaurada",
+   LoadingTitle = "RESTAURAÇÃO TOTAL",
    LoadingSubtitle = "by drayko",
    Theme = "Ocean" 
 })
@@ -13,13 +13,12 @@ local _G = {
     isParried = false
 }
 
--- [ OTIMIZAÇÃO DE CACHE ]
 local Players = game:GetService("Players")
 local RunService = game:GetService("RunService")
 local VIM = game:GetService("VirtualInputManager")
 local player = Players.LocalPlayer
 
--- Função Original (Busca Profunda) - INTOCADA
+-- FUNÇÃO QUE VOCÊ CONFIRMOU QUE FUNCIONA (Busca Profunda)
 local function GetBall()
     local ballsFolder = workspace:FindFirstChild("Balls")
     if ballsFolder then
@@ -35,37 +34,34 @@ local function GetBall()
     return nil
 end
 
--- [ LOOP DE ALTA PRECISÃO - OTIMIZADO PARA NÃO TRAVAR ]
+-- LOOP DE ALTA PRECISÃO (SUA LÓGICA ORIGINAL)
 RunService.PreSimulation:Connect(function()
-    if not _G.autoParry or _G.isParried then return end
+    if not _G.autoParry then return end
     
     local char = player.Character
     local hrp = char and char:FindFirstChild("HumanoidRootPart")
     if not hrp then return end
     
     local ball = GetBall()
-    if not ball then return end
-
-    local target = ball:GetAttribute("target")
-    local zoomies = ball:FindFirstChild("zoomies")
     
-    if target == player.Name and zoomies then
-        local velocity = zoomies.VectorVelocity
-        local speed = velocity.Magnitude
+    if ball then
+        local target = ball:GetAttribute("target")
+        local zoomies = ball:FindFirstChild("zoomies")
         
-        if speed > 0 then
+        -- Verifica se a bola é pra você e se já não bateu
+        if target == player.Name and not _G.isParried and zoomies then
+            local speed = zoomies.VectorVelocity.Magnitude
             local distance = (hrp.Position - ball.Position).Magnitude
             
-            -- LÓGICA DE CÁLCULO ORIGINAL (INTOCADA)
-            -- Resolve o bug de movimento/clash garantindo prioridade no clique
-            if (distance / speed) <= _G.reactionTime or distance <= 10 then
-                -- BATE IGUAL AO SCRIPT ORIGINAL
+            -- CÁLCULO BRUTO (Distância / Velocidade)
+            if speed > 0 and (distance / speed) <= _G.reactionTime then
+                -- COMANDO DE CLIQUE PURO (SEM CURVAS PARA NÃO BUGAR)
                 VIM:SendMouseButtonEvent(0, 0, 0, true, game, 0)
                 VIM:SendKeyEvent(true, Enum.KeyCode.F, false, game)
                 
                 _G.isParried = true
                 
-                -- Reseta o parry rápido para aguentar spam/clash
+                -- Reset rápido para aguentar spam
                 task.delay(0.1, function()
                     _G.isParried = false
                 end)
@@ -74,7 +70,7 @@ RunService.PreSimulation:Connect(function()
     end
 end)
 
--- Interface Rayfield
+-- INTERFACE SIMPLES E FUNCIONAL
 local Tab = Window:CreateTab("Combate", 4483362458)
 
 Tab:CreateToggle({
@@ -106,7 +102,7 @@ Tab:CreateSlider({
 })
 
 Tab:CreateButton({
-    Name = "Carregar Visualizer Original",
+    Name = "Carregar Visualizer",
     Callback = function()
         loadstring(game:HttpGet("https://scriptblox.com/raw/UPD-Blade-Ball-op-autoparry-with-visualizer-8652"))()
     end
