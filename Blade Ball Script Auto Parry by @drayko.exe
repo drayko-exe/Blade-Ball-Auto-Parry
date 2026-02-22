@@ -1,0 +1,113 @@
+local Rayfield = loadstring(game:HttpGet('https://sirius.menu/rayfield'))()
+
+local Window = Rayfield:CreateWindow({
+   Name = "Aqua Hub | Blade Ball Oficial",
+   LoadingTitle = "Restaurando Lógica Bruta...",
+   LoadingSubtitle = "by drayko",
+   Theme = "Ocean" 
+})
+
+local _G = {
+    autoParry = false,
+    reactionTime = 0.55,
+    isParried = false
+}
+
+local Players = game:GetService("Players")
+local RunService = game:GetService("RunService")
+local VIM = game:GetService("VirtualInputManager")
+local player = Players.LocalPlayer
+
+-- Função que você disse que FUNCIONOU (Busca Profunda)
+local function GetBall()
+    -- 1. Tenta o caminho rápido
+    local ballsFolder = workspace:FindFirstChild("Balls")
+    if ballsFolder then
+        for _, Ball in ipairs(ballsFolder:GetChildren()) do
+            if Ball:GetAttribute("realBall") then
+                return Ball
+            end
+        end
+    end
+    -- 2. Se não achou (Lobby ou Mudança de Pasta), procura no mapa todo (O que funcionou antes)
+    for _, Ball in ipairs(workspace:GetDescendants()) do
+        if Ball:IsA("BasePart") and Ball:GetAttribute("realBall") then
+            return Ball
+        end
+    end
+    return nil
+end
+
+-- Loop de Alta Precisão (PreSimulation)
+RunService.PreSimulation:Connect(function()
+    if not _G.autoParry then return end
+    
+    local char = player.Character
+    local hrp = char and char:FindFirstChild("HumanoidRootPart")
+    if not hrp then return end
+    
+    local ball = GetBall() -- Chama a função que você confirmou que funciona
+    
+    if ball then
+        -- Verifica Target e Zoomies
+        local target = ball:GetAttribute("target")
+        local zoomies = ball:FindFirstChild("zoomies")
+        
+        if target == player.Name and not _G.isParried and zoomies then
+            local speed = zoomies.VectorVelocity.Magnitude
+            local distance = (hrp.Position - ball.Position).Magnitude
+            
+            -- Se a velocidade for maior que 0 e estiver no tempo de reação
+            if speed > 0 and (distance / speed) <= _G.reactionTime then
+                -- BATE IGUAL AO SCRIPT ORIGINAL
+                VIM:SendMouseButtonEvent(0, 0, 0, true, game, 0)
+                VIM:SendKeyEvent(true, Enum.KeyCode.F, false, game)
+                
+                _G.isParried = true
+                
+                -- Reseta o parry rápido para não bugar o próximo
+                task.delay(0.1, function()
+                    _G.isParried = false
+                end)
+            end
+        end
+    end
+end)
+
+-- Interface Rayfield
+local Tab = Window:CreateTab("Combate", 4483362458)
+
+Tab:CreateToggle({
+   Name = "Auto-Parry (Lógica zoomies)",
+   CurrentValue = false,
+   Callback = function(v) _G.autoParry = v end,
+})
+
+Tab:CreateSlider({
+   Name = "Tempo de Reação (Reaction)",
+   Range = {0.1, 1.0},
+   Increment = 0.01,
+   CurrentValue = 0.55,
+   Callback = function(v) _G.reactionTime = v end,
+})
+
+Tab:CreateSection("Extras")
+
+Tab:CreateSlider({
+   Name = "Velocidade (WalkSpeed)",
+   Range = {16, 200},
+   Increment = 1,
+   CurrentValue = 16,
+   Callback = function(v)
+       if player.Character and player.Character:FindFirstChild("Humanoid") then
+           player.Character.Humanoid.WalkSpeed = v
+       end
+   end,
+})
+
+Tab:CreateButton({
+    Name = "Carregar Visualizer Original",
+    Callback = function()
+        loadstring(game:HttpGet("https://scriptblox.com/raw/UPD-Blade-Ball-op-autoparry-with-visualizer-8652"))()
+    end
+})
