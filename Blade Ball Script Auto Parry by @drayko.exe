@@ -3,7 +3,7 @@ local Rayfield = loadstring(game:HttpGet('https://sirius.menu/rayfield'))()
 local Window = Rayfield:CreateWindow({
    Name = "Made by @drayko.exe | Blade Ball Hub",
    LoadingTitle = "Carregando Script...",
-   LoadingSubtitle = "made by drayko >-<",
+   LoadingSubtitle = "made by drayko!",
    Theme = "Ocean" 
 })
 
