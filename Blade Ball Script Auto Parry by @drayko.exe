@@ -1,9 +1,20 @@
+-- [ OTIMIZAÇÃO DE VARIÁVEIS LOCAIS ]
+local Players = game:GetService("Players")
+local RunService = game:GetService("RunService")
+local VIM = game:GetService("VirtualInputManager")
+local Workspace = game:GetService("Workspace")
+local setclipboard = setclipboard or print 
+
+local player = Players.LocalPlayer
+local ballsFolder = Workspace:FindFirstChild("Balls")
+
+-- [ CARREGAMENTO DA UI ]
 local Rayfield = loadstring(game:HttpGet('https://sirius.menu/rayfield'))()
 
 local Window = Rayfield:CreateWindow({
-   Name = "Made by @drayko.exe | Blade Ball Hub",
-   LoadingTitle = "Carregando Script...",
-   LoadingSubtitle = "made by drayko!",
+   Name = "Mad by @drayko.exe | Blade Ball Hub",
+   LoadingTitle = "Carregando Script",
+   LoadingSubtitle = "by drayko",
    Theme = "Ocean" 
 })
 
@@ -13,97 +24,121 @@ local _G = {
     isParried = false
 }
 
-local Players = game:GetService("Players")
-local RunService = game:GetService("RunService")
-local VIM = game:GetService("VirtualInputManager")
-local player = Players.LocalPlayer
-
--- [ FUNÇÃO DE BUSCA PROFUNDA - A QUE FUNCIONA ]
+-- [ FUNÇÃO DE BUSCA ULTRA RÁPIDA - INTOCADA ]
 local function GetBall()
-    local ballsFolder = workspace:FindFirstChild("Balls")
     if ballsFolder then
-        for _, Ball in ipairs(ballsFolder:GetChildren()) do
-            if Ball:GetAttribute("realBall") then
-                return Ball
-            end
+        for _, b in ipairs(ballsFolder:GetChildren()) do
+            if b:GetAttribute("realBall") then return b end
         end
     end
-    for _, Ball in ipairs(workspace:GetDescendants()) do
-        if Ball:IsA("BasePart") and Ball:GetAttribute("realBall") then
-            return Ball
-        end
+    for _, b in ipairs(Workspace:GetDescendants()) do
+        if b:IsA("BasePart") and b:GetAttribute("realBall") then return b end
     end
     return nil
 end
 
--- [ LOOP DE ALTA PRECISÃO - SEM CURVAS / SEM LAG ]
+-- [ LOOP DE ALTA PERFORMANCE - INTOCADO ]
 RunService.PreSimulation:Connect(function()
-    if not _G.autoParry then return end
+    if not _G.autoParry or _G.isParried then return end
     
     local char = player.Character
-    local hrp = char and char:FindFirstChild("HumanoidRootPart")
+    if not char then return end
+    local hrp = char:FindFirstChild("HumanoidRootPart")
     if not hrp then return end
     
     local ball = GetBall()
-    
     if ball then
         local target = ball:GetAttribute("target")
-        local zoomies = ball:FindFirstChild("zoomies")
-        
-        if target == player.Name and not _G.isParried and zoomies then
-            local speed = zoomies.VectorVelocity.Magnitude
-            local distance = (hrp.Position - ball.Position).Magnitude
-            
-            -- CÁLCULO BRUTO ORIGINAL
-            if speed > 0 and (distance / speed) <= _G.reactionTime then
-                -- COMANDO DE HIT PURO
-                VIM:SendMouseButtonEvent(0, 0, 0, true, game, 0)
-                VIM:SendKeyEvent(true, Enum.KeyCode.F, false, game)
+        if target == player.Name then
+            local zoomies = ball:FindFirstChild("zoomies")
+            if zoomies then
+                local velocity = zoomies.VectorVelocity.Magnitude
+                local distance = (hrp.Position - ball.Position).Magnitude
                 
-                _G.isParried = true
-                
-                task.delay(0.1, function()
-                    _G.isParried = false
-                end)
+                if velocity > 0 and (distance / velocity) <= _G.reactionTime then
+                    VIM:SendMouseButtonEvent(0, 0, 0, true, game, 0)
+                    VIM:SendKeyEvent(true, Enum.KeyCode.F, false, game)
+                    
+                    _G.isParried = true
+                    task.delay(0.1, function() 
+                        _G.isParried = false 
+                    end)
+                end
             end
         end
     end
 end)
 
--- [ INTERFACE ]
+-- [ ABAS ]
 local Tab = Window:CreateTab("Combate", 4483362458)
 
 Tab:CreateToggle({
-   Name = "Auto-Parry (Lógica zoomies)",
+   Name = "Auto-Parry Ativado",
    CurrentValue = false,
    Callback = function(v) _G.autoParry = v end,
 })
 
 Tab:CreateSlider({
-   Name = "Tempo de Reação (Reaction)",
-   Range = {0.1, 1.0},
+   Name = "Reaction Time",
+   Range = {0.1, 1.2},
    Increment = 0.01,
    CurrentValue = 0.55,
    Callback = function(v) _G.reactionTime = v end,
 })
 
-Tab:CreateSection("Extras")
+local Extra = Window:CreateTab("Extras", 4483362458)
 
-Tab:CreateSlider({
-   Name = "Velocidade (WalkSpeed)",
+Extra:CreateSlider({
+   Name = "WalkSpeed",
    Range = {16, 200},
    Increment = 1,
    CurrentValue = 16,
    Callback = function(v)
-       if player.Character and player.Character:FindFirstChild("Humanoid") then
-           player.Character.Humanoid.WalkSpeed = v
-       end
+       local hum = player.Character and player.Character:FindFirstChild("Humanoid")
+       if hum then hum.WalkSpeed = v end
    end,
 })
 
-Tab:CreateButton({
-    Name = "Carregar Visualizer",
+Extra:CreateButton({
+    Name = "FPS Boost (Remover Texturas)",
     Callback = function()
-        loadstring(game:HttpGet("https://scriptblox.com/raw/UPD-Blade-Ball-op-autoparry-with-visualizer-8652"))()
+        for _, v in ipairs(Workspace:GetDescendants()) do
+            if v:IsA("BasePart") then
+                v.Material = Enum.Material.SmoothPlastic
+            elseif v:IsA("Decal") or v:IsA("Texture") then
+                v:Destroy()
+            end
+        end
+    end
+})
+
+-- ABA SOCIAL (ADICIONADA SEM MEXER NO PARRY)
+local SocialTab = Window:CreateTab("Social", 4483362458)
+
+SocialTab:CreateSection("Redes Sociais")
+
+SocialTab:CreateButton({
+    Name = "TikTok: @drayko.exe",
+    Callback = function()
+        setclipboard("@drayko.exe")
+        Rayfield:Notify({
+            Title = "Copiado!",
+            Content = "User do TikTok copiado!",
+            Duration = 3,
+            Image = 4483362458,
+        })
+    end
+})
+
+SocialTab:CreateButton({
+    Name = "Entrar no Discord",
+    Callback = function()
+        setclipboard("https://discord.gg/EqTyzs4S")
+        Rayfield:Notify({
+            Title = "Link Copiado!",
+            Content = "Link do Discord enviado para o seu clipboard.",
+            Duration = 3,
+            Image = 4483362458,
+        })
     end
 })
