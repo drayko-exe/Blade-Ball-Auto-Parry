@@ -1,9 +1,9 @@
 local Rayfield = loadstring(game:HttpGet('https://sirius.menu/rayfield'))()
 
 local Window = Rayfield:CreateWindow({
-   Name = "Aqua Hub | Blade Ball Oficial",
-   LoadingTitle = "RESTAURAÇÃO TOTAL",
-   LoadingSubtitle = "by drayko",
+   Name = "Made by @drayko.exe | Blade Ball Hub",
+   LoadingTitle = "Carregando Script...",
+   LoadingSubtitle = "made by drayko >-<",
    Theme = "Ocean" 
 })
 
@@ -18,12 +18,14 @@ local RunService = game:GetService("RunService")
 local VIM = game:GetService("VirtualInputManager")
 local player = Players.LocalPlayer
 
--- FUNÇÃO QUE VOCÊ CONFIRMOU QUE FUNCIONA (Busca Profunda)
+-- [ FUNÇÃO DE BUSCA PROFUNDA - A QUE FUNCIONA ]
 local function GetBall()
     local ballsFolder = workspace:FindFirstChild("Balls")
     if ballsFolder then
         for _, Ball in ipairs(ballsFolder:GetChildren()) do
-            if Ball:GetAttribute("realBall") then return Ball end
+            if Ball:GetAttribute("realBall") then
+                return Ball
+            end
         end
     end
     for _, Ball in ipairs(workspace:GetDescendants()) do
@@ -34,7 +36,7 @@ local function GetBall()
     return nil
 end
 
--- LOOP DE ALTA PRECISÃO (SUA LÓGICA ORIGINAL)
+-- [ LOOP DE ALTA PRECISÃO - SEM CURVAS / SEM LAG ]
 RunService.PreSimulation:Connect(function()
     if not _G.autoParry then return end
     
@@ -48,20 +50,18 @@ RunService.PreSimulation:Connect(function()
         local target = ball:GetAttribute("target")
         local zoomies = ball:FindFirstChild("zoomies")
         
-        -- Verifica se a bola é pra você e se já não bateu
         if target == player.Name and not _G.isParried and zoomies then
             local speed = zoomies.VectorVelocity.Magnitude
             local distance = (hrp.Position - ball.Position).Magnitude
             
-            -- CÁLCULO BRUTO (Distância / Velocidade)
+            -- CÁLCULO BRUTO ORIGINAL
             if speed > 0 and (distance / speed) <= _G.reactionTime then
-                -- COMANDO DE CLIQUE PURO (SEM CURVAS PARA NÃO BUGAR)
+                -- COMANDO DE HIT PURO
                 VIM:SendMouseButtonEvent(0, 0, 0, true, game, 0)
                 VIM:SendKeyEvent(true, Enum.KeyCode.F, false, game)
                 
                 _G.isParried = true
                 
-                -- Reset rápido para aguentar spam
                 task.delay(0.1, function()
                     _G.isParried = false
                 end)
@@ -70,7 +70,7 @@ RunService.PreSimulation:Connect(function()
     end
 end)
 
--- INTERFACE SIMPLES E FUNCIONAL
+-- [ INTERFACE ]
 local Tab = Window:CreateTab("Combate", 4483362458)
 
 Tab:CreateToggle({
